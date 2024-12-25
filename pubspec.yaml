@@ -1,0 +1,120 @@
+name: weather_now
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+isar_version: &isar_version 3.1.0+1 # define the version to be used
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  # UI libraries
+  cupertino_icons: ^1.0.8
+  flutter_bloc: ^8.1.6
+  retrofit: ^4.4.1
+  dio: ^5.7.0
+  freezed: ^2.5.7
+  freezed_annotation: ^2.4.4
+  talker_dio_logger: ^4.5.2
+  flutter_svg: ^2.0.10+1
+  flutter_screenutil: ^5.9.3
+  pull_to_refresh: ^2.0.0
+  top_snackbar_flutter: ^3.1.0
+  flutter_staggered_animations: ^1.1.1
+  draggable_home: ^1.0.5
+  image: ^4.3.0
+  shimmer: ^3.0.0
+  lottie: ^3.1.3
+  location: ^7.0.0
+  easy_sticky_header: ^1.1.1
+  flutter_sticky_header: ^0.7.0
+
+  # Extension libraries
+  internet_connection_checker_plus: ^2.5.0
+  geolocator: ^10.1.0
+  permission_handler: ^11.3.1
+  geocoding: ^3.0.0
+  get: ^4.6.6
+  get_it: ^7.7.0
+  intl: ^0.19.0
+  font_awesome_flutter: ^10.7.0
+  dartz: ^0.10.1
+  fluttertoast: ^8.2.6
+  logger: ^2.5.0
+  flutter_animate: ^4.0.0 # for animation
+  pretty_dio_logger: ^1.2.0 # for dio API logging and debugging
+  internet_connection_checker: ^1.0.0+1
+
+  # Storage libraries
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.3
+  get_storage: ^2.1.1
+  path: ^1.9.0
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  retrofit_generator: ^9.1.5
+  json_serializable: ^6.6.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.13
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/lottie/
+    - assets/svg/
+    - assets/icons/
+
+  fonts:
+    - family: sfbold
+      fonts:
+        - asset: assets/fonts/sf_bold.otf
+
+    - family: sfsemibold
+      fonts:
+        - asset: assets/fonts/sf_bold.otf
+
+    - family: sfmedium
+      fonts:
+        - asset: assets/fonts/sf_medium.otf
+
+    - family: sfregular
+      fonts:
+        - asset: assets/fonts/sf_regular.otf
