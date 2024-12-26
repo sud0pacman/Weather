@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-import 'package:weather_now/data/model/favourite_model.dart';
 import 'package:weather_now/data/model/weather_model.dart';
 import 'package:weather_now/presentation/bloc/home/home_bloc.dart';
 import 'package:weather_now/utils/constants.dart';
@@ -27,13 +26,13 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final List<WeatherModel> tempWeathers;
+    late final Map<int, WeatherModel> tempWeathers;
 
     if (state.weathers.isNotEmpty) {
       tempWeathers = state.weathers;
 
-      for (var tempWeather in tempWeathers) {
-        Constants.logger.t("AppDrawer weather => ${tempWeather.location.name}");
+      for (var tempWeather in tempWeathers.values) {
+        Constants.logger.t("AppDrawer weather: ${tempWeather.location.name} => lat: ${tempWeather.location.lat}, lon: ${tempWeather.location.lon}");
       }
     }
 
@@ -79,17 +78,18 @@ class AppDrawer extends StatelessWidget {
                         ),
                       ],
                     ),
+
                     Expanded(
                       child: ListView.builder(
                         itemCount: tempWeathers.length,
                         shrinkWrap: true,
                         itemBuilder: (context, index) => DrawerLocationWidget(
-                          locationName: tempWeathers[index].location.name,
-                          imageUrl:
-                              tempWeathers[index].current.condition.code.getCustomIcon(),
-                          temp: "${tempWeathers[index].current.tempC.toInt()}°",
+                          icon: index == state.currentWeather ? Icons.location_on : null,
+                          locationName: tempWeathers[index]!.location.name,
+                          imageUrl: tempWeathers[index]!.current.condition.code.getCustomIcon(),
+                          temp: "${tempWeathers[index]!.current.tempC}°",
                           onTap: () {
-                            onSelectLocation("${tempWeathers[index].location.lat},${tempWeathers[index].location.lat}");
+                            onSelectLocation("${tempWeathers[index]!.location.lat},${tempWeathers[index]!.location.lon}");
                             Get.back();
                           },
                         ),

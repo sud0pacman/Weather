@@ -1,11 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:location/location.dart';
 import 'package:weather_now/data/data_source/service/api_call_status.dart';
-import 'package:weather_now/data/model/searched_weather_model.dart';
 import 'package:weather_now/data/model/weather_model.dart';
-import 'package:weather_now/data/source/local/favourite_entity.dart';
 import 'package:weather_now/utils/constants.dart';
 import 'package:weather_now/utils/helpers/app_helpers.dart';
 import 'package:weather_now/utils/isar_helper/hive_helper.dart';
@@ -14,7 +11,6 @@ import 'package:weather_now/utils/isar_helper/weather_hive_helper.dart';
 import '../../../data/data_source/service/api_exceptions.dart';
 import '../../../data/data_source/service/base_client.dart';
 import '../../../data/data_source/service/location_service.dart';
-import '../../../data/model/favourite_model.dart';
 import '../../../data/source/local/weather_entity.dart';
 import '../../../utils/translations/localization_service.dart';
 
@@ -28,7 +24,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<LocationData?>? _cachedLocationFuture;
 
   HomeBloc()
-      : super(HomeState(homeDrawerState: HomeDrawerState(weathers: []))) {
+      : super(HomeState(homeDrawerState: HomeDrawerState(weathers: {}))) {
     on<HomeInitEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       final bool hasConnection = await networkChecker.hasConnection;
@@ -74,6 +70,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       }
 
+      Constants.logger.t("$location  $isCurrentLocation");
+
       if (location.isNotEmpty) {
         await BaseClient.safeApiCall(
           Constants.forecastWeatherApiUrl,
@@ -86,21 +84,37 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           },
           onSuccess: (response) async {
             WeatherModel weatherModel = WeatherModel.fromJson(response.data);
-            Constants.logger.t("HomeInitEvent ${WeatherModel.fromJson(response.data)}");
+            Constants.logger.t("HomeInitEvent ${weatherModel.toString()}");
 
             int savedCurrentWeatherIndex = await WeatherHiveHelper.getCurrentWeatherIndex();
-            if (isCurrentLocation && savedCurrentWeatherIndex == -1) {
-              int currentWeatherIndex = await WeatherHiveHelper
-                  .addWeatherEntity(
-                  AppHelpers.getWeatherEntityByModel(weatherModel)
+            if (isCurrentLocation) {
+              int reg = location.indexOf(",");
+              weatherModel.location = weatherModel.location.copyWith(
+                lat: double.tryParse(location.substring(0, reg)),
+                lon: double.tryParse(location.substring(reg+1))
               );
 
-              await WeatherHiveHelper.saveCurrentWeatherIndex(
-                  currentWeatherIndex);
+              if (savedCurrentWeatherIndex != -1) {
+                await WeatherHiveHelper.updateWeatherEntity(AppHelpers.getWeatherEntityByModel(weatherModel), savedCurrentWeatherIndex);
+              }
+              else {
+                int currentWeatherIndex = await WeatherHiveHelper
+                    .addWeatherEntity(
+                    AppHelpers.getWeatherEntityByModel(weatherModel)
+                );
+
+                await WeatherHiveHelper.saveCurrentWeatherIndex(
+                    currentWeatherIndex);
+              }
             }
 
             emit(state.copyWith(
-                currentWeather: weatherModel, homeDrawerState: state.homeDrawerState.copyWith(weathers: await _getWeatherFromLocal())));
+              currentWeather: weatherModel,
+              homeDrawerState: state.homeDrawerState.copyWith(
+                weathers: await _getWeatherFromLocal(),
+                currentWeather: await WeatherHiveHelper.getCurrentWeatherIndex())
+              )
+            );
           },
           onError: (ApiException error) async {
             Constants.logger.e(BaseClient.handleApiError(error));
@@ -116,22 +130,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(state.copyWith(
           homeDrawerState: state.homeDrawerState.copyWith(isLoading: true), isLoading: state.currentWeather == null ? true : false));
 
-      List<WeatherModel> savedWeatherModelList = [];
+      Map<int, WeatherModel> savedWeatherModelList = {};
       savedWeatherModelList.addAll(await _getWeatherFromLocal());
 
       var hasNetwork = await networkChecker.hasConnection;
 
       if (hasNetwork == true) {
-        var currentWeatherIndex = await WeatherHiveHelper.getCurrentWeatherIndex();
         for (int i = 0; i < savedWeatherModelList.length; ++i) {
-          if (currentWeatherIndex == i) continue;
 
           await BaseClient.safeApiCall(
             Constants.forecastWeatherApiUrl,
             RequestType.get,
             queryParameters: {
               Constants.key: Constants.apiKey,
-              Constants.q: "${savedWeatherModelList[i].location.lat},${savedWeatherModelList[i].location.lon}",
+              Constants.q: "${savedWeatherModelList[i]?.location.lat},${savedWeatherModelList[i]?.location.lon}",
               Constants.days: 7,
               Constants.lang: currentLanguage,
             },
@@ -139,15 +151,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               var weatherData = WeatherModel.fromJson(response.data);
 
               savedWeatherModelList[i] = weatherData;
-
-              Constants.logger.t("HomeGetSavedLocations save $i => ${savedWeatherModelList[i].location.name}");
             },
           );
 
         }
 
         for (int i = 0; i < savedWeatherModelList.length; ++i) {
-          await _saveWeatherModel(savedWeatherModelList[i], i);
+          await _saveWeatherModel(savedWeatherModelList[i]!, i);
         }
       }
 
@@ -176,23 +186,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  /// get selected location
-  LocationData? getSelectedLocation(SearchedWeatherModel? searchedWeather) {
-    if (searchedWeather == null) {
-      return null;
-    }
-
-    return LocationData.fromMap({});
-  }
-
   Future<void> _saveWeatherModel(WeatherModel weatherModel, int initIndex) async {
       await WeatherHiveHelper.updateWeatherEntity(AppHelpers.getWeatherEntityByModel(weatherModel), initIndex);
   }
 
-  Future<List<WeatherModel>> _getWeatherFromLocal() async {
+  Future<Map<int, WeatherModel>> _getWeatherFromLocal() async {
     List<WeatherEntity> favouriteEntityList = WeatherHiveHelper.getAllWeatherEntities();
-    List<WeatherModel> favouriteModelList = favouriteEntityList.map((e) => AppHelpers.getWeatherModelByEntity(e)).toList();
 
-    return favouriteModelList;
+    Map<int, WeatherModel> weatherMap = {};
+
+    for (int i = 0; i < favouriteEntityList.length; ++i) {
+      weatherMap[i] = AppHelpers.getWeatherModelByEntity(favouriteEntityList[i]);
+    }
+
+    return weatherMap;
   }
 }

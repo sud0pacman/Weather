@@ -20,15 +20,36 @@ class Location {
   });
 
   factory Location.fromJson(Map<String, dynamic> json) => Location(
-    name: json['name'],
-    region: json['region'],
-    country: json['country'],
-    lat: json['lat']?.toDouble(),
-    lon: json['lon']?.toDouble(),
-    tzId: json['tz_id'],
-    localtimeEpoch: json['localtime_epoch'].toString(),
-    localtime: json['localtime'],
-  );
+        name: json['name'],
+        region: json['region'],
+        country: json['country'],
+        lat: json['lat'],
+        lon: json['lon'],
+        tzId: json['tz_id'],
+        localtimeEpoch: json['localtime_epoch'].toString(),
+        localtime: json['localtime'],
+      );
+
+  Location copyWith(
+      {String? name,
+      String? region,
+      String? country,
+      double? lat,
+      double? lon,
+      String? tzId,
+      String? localtimeEpoch,
+      String? localtime}) {
+    return Location(
+      name: name ?? this.name,
+      region: region ?? this.region,
+      country: country ?? this.country,
+      lat: lat ?? this.lat,
+      lon: lon ?? this.lon,
+      tzId: tzId ?? this.tzId,
+      localtimeEpoch: localtimeEpoch ?? this.localtimeEpoch,
+      localtime: localtime ?? this.localtime,
+    );
+  }
 
   @override
   String toString() {

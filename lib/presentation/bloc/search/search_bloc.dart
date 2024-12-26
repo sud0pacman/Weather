@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
+import 'package:get/get.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:weather_now/data/model/favourite_model.dart';
 import 'package:weather_now/data/model/searched_weather_model.dart';
-import 'package:weather_now/data/source/local/favourite_entity.dart';
 import 'package:weather_now/data/source/local/weather_entity.dart';
 
 import '../../../data/data_source/service/api_call_status.dart';
@@ -13,6 +13,7 @@ import '../../../utils/constants.dart';
 import '../../../utils/helpers/app_helpers.dart';
 import '../../../utils/isar_helper/hive_helper.dart';
 import '../../../utils/isar_helper/weather_hive_helper.dart';
+import '../../../utils/routes/app_routes.dart';
 import '../../../utils/translations/localization_service.dart';
 
 part 'search_event.dart';
@@ -73,6 +74,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     });
 
     on<AddFavouriteEvent>((event, emit) async {
+
+      if (event.favouriteModel.isSaved) {
+        Get.offNamed(AppRoutes.home, arguments: {
+          'location': "${event.favouriteModel.lat},${event.favouriteModel.lon}"
+        });
+
+        return;
+      }
+
       emit(state.copyWith(isLoading: true));
 
       final bool hasConnection = await networkChecker.hasConnection;
@@ -106,6 +116,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           );
         },
       );
+
+      Get.offNamed(AppRoutes.home, arguments: {
+        'location': "${event.favouriteModel.lat},${event.favouriteModel.lon}"
+      });
 
       emit(state.copyWith(weathers: await _getFavouritesFromLocal()));
     });

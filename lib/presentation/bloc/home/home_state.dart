@@ -31,14 +31,14 @@ class HomeState {
 
 class HomeDrawerState {
   bool? isLoading;
-  List<WeatherModel> weathers;
+  Map<int, WeatherModel> weathers;
   bool? isEmptyFounded;
-  WeatherModel? currentWeather;
+  int currentWeather;
   ApiCallStatus? status;
 
-  HomeDrawerState({this.isLoading = true, required this.weathers, this.isEmptyFounded, this.currentWeather, this.status});
+  HomeDrawerState({this.isLoading = true, required this.weathers, this.isEmptyFounded, this.currentWeather = -1, this.status});
 
-  HomeDrawerState copyWith({bool? isLoading, List<WeatherModel>? weathers, bool? isEmptyFounded, WeatherModel? currentWeather, ApiCallStatus? status}) {
+  HomeDrawerState copyWith({bool? isLoading, Map<int, WeatherModel>? weathers, bool? isEmptyFounded, int? currentWeather, ApiCallStatus? status}) {
     return HomeDrawerState(
       isLoading: isLoading ?? false,
       weathers: weathers ?? this.weathers,
@@ -50,6 +50,6 @@ class HomeDrawerState {
 
   @override
   String toString() {
-    return 'HomeDrawerState{isLoading: $isLoading, weathers: ${weathers?.length}}';
+    return 'HomeDrawerState{isLoading: $isLoading, weathers: ${weathers.length}}';
   }
 }

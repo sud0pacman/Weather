@@ -7,7 +7,6 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart'; // Import the
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_now/utils/helpers/app_helpers.dart';
-import 'package:weather_now/utils/routes/app_routes.dart';
 import 'package:weather_now/utils/theme/app_text_styles.dart';
 
 import '../../../components/primary_alert_dialog.dart';
@@ -218,14 +217,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               child: GestureDetector(
                                 onTap: () {
 
-                                  if (location.isSaved == false) {
-                                    _bloc.add(AddFavouriteEvent(location));
-                                  }
-
-
-                                  Get.offNamed(AppRoutes.home, arguments: {
-                                    'location': "${location.lat},${location.lon}"
-                                  });
+                                  _bloc.add(AddFavouriteEvent(location));
 
                                 },
                                 child: Row(
