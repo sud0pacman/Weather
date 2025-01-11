@@ -5,7 +5,6 @@ import 'package:weather_now/data/data_source/service/api_call_status.dart';
 import 'package:weather_now/data/model/weather_model.dart';
 import 'package:weather_now/utils/constants.dart';
 import 'package:weather_now/utils/helpers/app_helpers.dart';
-import 'package:weather_now/utils/isar_helper/hive_helper.dart';
 import 'package:weather_now/utils/isar_helper/weather_hive_helper.dart';
 
 import '../../../data/data_source/service/api_exceptions.dart';
@@ -19,7 +18,6 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   var currentLanguage = LocalizationService.getCurrentLocal().languageCode;
-  final hiveHelper = HiveHelper();
   final InternetConnectionChecker networkChecker = InternetConnectionChecker();
   Future<LocationData?>? _cachedLocationFuture;
 

@@ -2,26 +2,31 @@ part of 'locations_bloc.dart';
 
 class LocationsState {
   List<WeatherEntity> savedLocation;
-  bool? isLoading;
+  bool isLoading;
   String? errorToastMessage;
   int currentLocationId;
+  bool isSelectable;
 
   LocationsState(
       {required this.savedLocation,
-      this.isLoading,
+      this.isLoading = false,
       this.errorToastMessage,
-      this.currentLocationId = -1});
+      this.currentLocationId = -1,
+      this.isSelectable = false});
 
   LocationsState copyWith(
       {List<WeatherEntity>? savedLocation,
       bool? isLoading,
       String? errorToastMessage,
-      int? currentLocationId}) {
+      int? currentLocationId,
+        bool? isSelectable}) {
     return LocationsState(
-        savedLocation: savedLocation ?? this.savedLocation,
-        isLoading: isLoading,
-        errorToastMessage: errorToastMessage,
-        currentLocationId: currentLocationId ?? this.currentLocationId);
+      savedLocation: savedLocation ?? this.savedLocation,
+      isLoading: isLoading ?? false,
+      errorToastMessage: errorToastMessage,
+      currentLocationId: currentLocationId ?? this.currentLocationId,
+      isSelectable: isSelectable ?? false,
+    );
   }
 
   @override

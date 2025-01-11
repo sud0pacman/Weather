@@ -11,7 +11,6 @@ import '../../../data/data_source/service/base_client.dart';
 import '../../../data/model/weather_model.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/helpers/app_helpers.dart';
-import '../../../utils/isar_helper/hive_helper.dart';
 import '../../../utils/isar_helper/weather_hive_helper.dart';
 import '../../../utils/routes/app_routes.dart';
 import '../../../utils/translations/localization_service.dart';
@@ -20,7 +19,6 @@ part 'search_event.dart';
 part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  final hiveHelper = HiveHelper();
   final InternetConnectionChecker networkChecker = InternetConnectionChecker();
 
   var currentLanguage = LocalizationService.getCurrentLocal().languageCode;
