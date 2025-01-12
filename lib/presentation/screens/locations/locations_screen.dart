@@ -34,19 +34,34 @@ class _LocationsScreenState extends State<LocationsScreen> {
     int newPositionIndex = _indexOfKey(newPosition);
 
     if (draggingIndex == newPositionIndex) {
-      return false;
+      return false; // No change in position
     }
 
     setState(() {
+      // Swap the items in the list
       final draggedItem = _items.removeAt(draggingIndex);
       _items.insert(newPositionIndex, draggedItem);
 
-      final bool? draggedSelectedState = selectedFlag.remove(draggingIndex);
-      selectedFlag[newPositionIndex] = draggedSelectedState!;
+      // Swap the selected states
+      bool draggedSelectedState = selectedFlag[draggingIndex] ?? false;
+      bool newPositionSelectedState = selectedFlag[newPositionIndex] ?? false;
+
+      // Swap the selection state
+      selectedFlag[draggingIndex] = newPositionSelectedState;
+      selectedFlag[newPositionIndex] = draggedSelectedState;
+
+      // Cleanup false selections
+      if (!selectedFlag[draggingIndex]!) {
+        selectedFlag.remove(draggingIndex);
+      }
+      if (!selectedFlag[newPositionIndex]!) {
+        selectedFlag.remove(newPositionIndex);
+      }
     });
 
     return true;
   }
+
 
   void _reorderDone(Key item) {
     final draggedItem = _items[_indexOfKey(item)];
@@ -77,6 +92,18 @@ class _LocationsScreenState extends State<LocationsScreen> {
     } else {
       // Open details page
     }
+  }
+
+  void selectAll(bool isSelected) {
+    setState(() {
+      for (int i = 0; i < _items.length; i++) {
+        selectedFlag[i] = isSelected;
+      }
+      isSelectionMode = isSelected;
+      int selectedItemLen = selectedItemLength();
+      _draggingMode = getDraggingMode(selectedItemLen);
+      selectedTitle = "$selectedItemLen selected";
+    });
   }
 
   final List<Widget> unselectedActions = [
@@ -127,31 +154,32 @@ class _LocationsScreenState extends State<LocationsScreen> {
   }
 
   Widget selectedLeading() {
+    bool allSelected = selectedItemLength() == _items.length;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          onPressed: () {},
-          icon: const Icon(CupertinoIcons.circle, color: Colors.grey,),
+          onPressed: () => selectAll(!allSelected),
+          icon: Icon(
+            allSelected ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
+            color: allSelected ? Colors.blueAccent : Colors.grey,
+          ),
           style: const ButtonStyle(
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            padding: WidgetStatePropertyAll<EdgeInsets>(
-                EdgeInsets.all(0)), // Remove default padding
+            padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.all(0)),
           ),
         ),
-
         Text(
-          "All",
+          allSelected ? "Unselect All" : "All",
           style: AppStyles.bodyRegularS.copyWith(
             color: AppColors.white,
             fontSize: 12,
-            height: .1
+            height: .1,
           ),
-        )
+        ),
       ],
     );
   }
-
 
   DraggingMode _draggingMode = DraggingMode.android;
 
@@ -207,7 +235,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                             bool isSelected = selectedFlag[index] ?? false;
 
                             return LocationItem(
-                              i: index,
+                              i: _items[index].id,
                               isSelected: isSelected,
                               isCurrent: false,
                               data: _items[index],

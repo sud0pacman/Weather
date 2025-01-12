@@ -36,21 +36,34 @@ class _HomePageState extends State<HomePage> {
     int newPositionIndex = _indexOfKey(newPosition);
 
     if (draggingIndex == newPositionIndex) {
-      return false; // Agar joylashuv o'zgarmasa, hech narsa o'zgartirilmaydi.
+      return false; // No change in position
     }
 
     setState(() {
-      // Elementning o'zini almashtiramiz
+      // Swap the items in the list
       final draggedItem = staticData.removeAt(draggingIndex);
       staticData.insert(newPositionIndex, draggedItem);
 
-      // `isSelected` holatini ham almashtiramiz
-      final bool? draggedSelectedState = selectedFlag.remove(draggingIndex);
-      selectedFlag[newPositionIndex] = draggedSelectedState!;
+      // Swap the selected states
+      bool draggedSelectedState = selectedFlag[draggingIndex] ?? false;
+      bool newPositionSelectedState = selectedFlag[newPositionIndex] ?? false;
+
+      // Swap the selection state
+      selectedFlag[draggingIndex] = newPositionSelectedState;
+      selectedFlag[newPositionIndex] = draggedSelectedState;
+
+      // Cleanup false selections
+      if (!selectedFlag[draggingIndex]!) {
+        selectedFlag.remove(draggingIndex);
+      }
+      if (!selectedFlag[newPositionIndex]!) {
+        selectedFlag.remove(newPositionIndex);
+      }
     });
 
     return true;
   }
+
 
   Widget _buildItem(
       BuildContext context, {

@@ -19,16 +19,16 @@ class OneUiNestedScrollView extends StatefulWidget {
 
   const OneUiNestedScrollView(
       {super.key,
-      this.expendedHeight,
-      this.toolbarHeight,
-      this.expandedWidget,
-      this.collapsedWidget,
-      this.boxDecoration,
-      this.leadingIcon,
-      this.actions,
-      required  this.body,
-      this.sliverBackgroundColor,
-      this.globalKey});
+        this.expendedHeight,
+        this.toolbarHeight,
+        this.expandedWidget,
+        this.collapsedWidget,
+        this.boxDecoration,
+        this.leadingIcon,
+        this.actions,
+        required this.body,
+        this.sliverBackgroundColor,
+        this.globalKey});
 
   @override
   State<OneUiNestedScrollView> createState() => _OneUiNestedScrollViewState();
@@ -41,8 +41,10 @@ class _OneUiNestedScrollViewState extends State<OneUiNestedScrollView> {
 
   Future<void>? scrollAnimate;
 
+  bool _isDragging = false;  // Add this flag
+
   double calculateExpandRatio(BoxConstraints constraints) {
-    var  expandRatio = (constraints.maxHeight - _toolbarHeight) / (_expandedHeight - _toolbarHeight);
+    var expandRatio = (constraints.maxHeight - _toolbarHeight) / (_expandedHeight - _toolbarHeight);
 
     if (expandRatio > 1.0) expandRatio = 1;
     if (expandRatio < 0.0) expandRatio = 0;
@@ -59,58 +61,57 @@ class _OneUiNestedScrollViewState extends State<OneUiNestedScrollView> {
           expandedHeight: _expandedHeight,
           toolbarHeight: _toolbarHeight,
           flexibleSpace: LayoutBuilder(
-            builder: (context, constraints) {
-              final expandRatio = calculateExpandRatio(constraints);
-              final animation = AlwaysStoppedAnimation(expandRatio);
+              builder: (context, constraints) {
+                final expandRatio = calculateExpandRatio(constraints);
+                final animation = AlwaysStoppedAnimation(expandRatio);
 
-              return  Stack(
-                children: [
+                return Stack(
+                  children: [
+                    Container(decoration: widget.boxDecoration,),
 
-                  Container(decoration: widget.boxDecoration,),
-
-                  if (widget.expandedWidget != null)
-                    Center(
-                    child: FadeAnimation(
-                      animation: animation,
-                      isExpandedWidget: true,
-                      child: widget.expandedWidget!,
-                    ),
-                  ),
-
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SizedBox(
-                      height: _toolbarHeight,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (widget.leadingIcon != null) widget.leadingIcon!,
-
-                          if (widget.collapsedWidget != null)
-                            Padding(
-                              padding: EdgeInsets.only(left: widget.leadingIcon != null ? 8 : 32),
-                              child: FadeAnimation(
-                                animation: animation,
-                                isExpandedWidget: false,
-                                child: widget.collapsedWidget!,
-                              ),
-                            ),
-
-                          if (widget.actions != null)
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: widget.actions!.reversed.toList(),
-                              )
-                            )
-                        ],
+                    if (widget.expandedWidget != null)
+                      Center(
+                        child: FadeAnimation(
+                          animation: animation,
+                          isExpandedWidget: true,
+                          child: widget.expandedWidget!,
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              );
-            }
+
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                        height: _toolbarHeight,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (widget.leadingIcon != null) widget.leadingIcon!,
+
+                            if (widget.collapsedWidget != null)
+                              Padding(
+                                padding: EdgeInsets.only(left: widget.leadingIcon != null ? 8 : 32),
+                                child: FadeAnimation(
+                                  animation: animation,
+                                  isExpandedWidget: false,
+                                  child: widget.collapsedWidget!,
+                                ),
+                              ),
+
+                            if (widget.actions != null)
+                              Expanded(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: widget.actions!.reversed.toList(),
+                                  )
+                              )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              }
           ),
         ),
       )
@@ -124,7 +125,7 @@ class _OneUiNestedScrollViewState extends State<OneUiNestedScrollView> {
         return CustomScrollView(
           slivers: [
             SliverOverlapInjector(
-              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context)
             ),
             widget.body
           ],
@@ -150,13 +151,11 @@ class _OneUiNestedScrollViewState extends State<OneUiNestedScrollView> {
     return false;
   }
 
-
   @override
   void initState() {
     _nestedScrollViewState = widget.globalKey ?? GlobalKey();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -173,8 +172,12 @@ class _OneUiNestedScrollViewState extends State<OneUiNestedScrollView> {
         child: NestedScrollView(
           key: _nestedScrollViewState,
           headerSliverBuilder: headerSliverBuilder,
-          physics: OneUiScrollPhysics(_expandedHeight),
-          body: body()
+          physics: _isDragging ? const NeverScrollableScrollPhysics() : OneUiScrollPhysics(_expandedHeight),  // Adjust scroll physics
+          body: GestureDetector(
+            onPanStart: (_) => setState(() => _isDragging = true),    // Set dragging flag
+            onPanEnd: (_) => setState(() => _isDragging = false),     // Reset dragging flag
+            child: body(),
+          ),
         ),
       ),
     );
