@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weather_now/components/shape.dart';
+import 'package:weather_now/utils/constants.dart';
 import 'package:weather_now/utils/extensions/extensions.dart';
 import 'package:weather_now/utils/helpers/app_helpers.dart';
 import 'package:weather_now/utils/theme/app_styles.dart';
@@ -11,6 +13,7 @@ import '../locations_screen.dart';
 
 
 class LocationItem extends StatelessWidget {
+  final int i;
   final bool isCurrent;
   final VoidCallback? onLongPress;
   final VoidCallback? onTap;
@@ -19,18 +22,19 @@ class LocationItem extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
   final bool isSelected;
-  bool isSelectionMode = false;
+  bool isSelectionMode;
 
   LocationItem({
     super.key,
     required this.isCurrent,
     this.onLongPress,
     this.onTap,
+    this.isSelectionMode = false,
     required this.data,
     required this.draggingMode,
     required this.isFirst,
     required this.isLast,
-    required this.isSelected
+    required this.isSelected, required this.i
   });
 
   Widget get dragHandle {
@@ -38,8 +42,9 @@ class LocationItem extends StatelessWidget {
         ? ReorderableListener(
       child: Container(
         padding: const EdgeInsets.only(right: 18.0, left: 18.0),
-        child: const Center(
-          child: Icon(Icons.reorder, color: Color(0xFF888888)),
+        child: Image.asset(
+          Constants.doubleChevron,
+          color: Colors.grey,
         ),
       ),
     )
@@ -62,7 +67,7 @@ class LocationItem extends StatelessWidget {
               width: AppHelpers.screenWidth(context),
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.bottomBarDark,
+                color: AppColors.item,
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
                   width: 2,
@@ -101,8 +106,8 @@ class LocationItem extends StatelessWidget {
                                     if (isCurrent) 6.horizontalSpace,
                                     Expanded(
                                       child: Text(
-                                        "Moskva",
-                                        style: AppStyles.bodyRegularL.copyWith(height: 1),
+                                        "$i",
+                                        style: AppStyles.bodyRegularL,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -120,7 +125,8 @@ class LocationItem extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Expanded(
+
+                          if (draggingMode == DraggingMode.android) Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -175,16 +181,23 @@ class LocationItem extends StatelessWidget {
 
 
   Widget _buildSelectIcon(bool isSelected, ItemData data, BuildContext context) {
-    if (isSelected) {
-      return Icon(
-        isSelected ? Icons.check_box : Icons.check_box_outline_blank,
-        color: Theme.of(context).primaryColor,
-      );
-    } else {
-      return CircleAvatar(
-        child: Text('${data.id}'),
+    if (isSelected || isSelectionMode) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isSelected ? CupertinoIcons.checkmark_circle_fill : CupertinoIcons.circle,
+            color: isSelected ? Colors.blueAccent : Colors.grey,
+          ),
+
+          const SizedBox(width: 24,)
+        ],
       );
     }
+    else {
+      return Container();
+    }
   }
+
 }
 

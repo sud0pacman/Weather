@@ -22,8 +22,8 @@ import 'package:weather_now/data/source/local/weather_entity.dart';
 import '../theme/app_styles.dart';
 
 class AppHelpers {
-  static double screenWidth(BuildContext ctx) => MediaQuery.of(ctx).size.width;
-  static double screenHight(BuildContext ctx) => MediaQuery.of(ctx).size.height;
+  static double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
+  static double screenHeight(BuildContext context) => MediaQuery.of(context).size.height;
 
   static SnackbarController showSnackbar({
     required String title,

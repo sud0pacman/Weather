@@ -44,6 +44,7 @@ class Constants {
   static const downArrow = 'assets/vectors/down_arrow.svg';
   static const wind = 'assets/vectors/wind.svg';
   static const pressure = 'assets/vectors/pressure.svg';
+  static const doubleChevron = 'assets/icons/double_chevron.png';
 
   // lottie
   static const weatherAnimation = 'assets/lottie/weather_animation.json';

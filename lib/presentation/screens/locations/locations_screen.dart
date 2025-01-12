@@ -1,11 +1,11 @@
-import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
+import 'package:flutter_reorderable_list/flutter_reorderable_list.dart' as reorderable;
 import 'package:weather_now/presentation/bloc/locations/locations_bloc.dart';
 import 'package:weather_now/presentation/screens/locations/widget/location_item.dart';
 import 'package:flutter/material.dart' hide ReorderableList;
-import 'package:weather_now/utils/constants.dart';
+import 'package:weather_now/presentation/screens/locations/widget/one_ui_nested_scroll_view.dart';
+import '../../../utils/theme/app_styles.dart';
 import '../../../utils/theme/colors.dart';
 
 class LocationsScreen extends StatefulWidget {
@@ -19,11 +19,12 @@ class _LocationsScreenState extends State<LocationsScreen> {
   final LocationsBloc _bloc = LocationsBloc();
   final List<ItemData> _items = [];
   final isSelectableState = true;
+  String unSelectedTitle = "Manage locations";
+  String selectedTitle = "";
   Map<int, bool> selectedFlag = {};
+
   bool isSelectionMode = false;
 
-
-  // Returns index of item with given key
   int _indexOfKey(Key key) {
     return _items.indexWhere((ItemData d) => d.key == key);
   }
@@ -33,15 +34,13 @@ class _LocationsScreenState extends State<LocationsScreen> {
     int newPositionIndex = _indexOfKey(newPosition);
 
     if (draggingIndex == newPositionIndex) {
-      return false; // Agar joylashuv o'zgarmasa, hech narsa o'zgartirilmaydi.
+      return false;
     }
 
     setState(() {
-      // Elementning o'zini almashtiramiz
       final draggedItem = _items.removeAt(draggingIndex);
       _items.insert(newPositionIndex, draggedItem);
 
-      // `isSelected` holatini ham almashtiramiz
       final bool? draggedSelectedState = selectedFlag.remove(draggingIndex);
       selectedFlag[newPositionIndex] = draggedSelectedState!;
     });
@@ -58,7 +57,10 @@ class _LocationsScreenState extends State<LocationsScreen> {
     setState(() {
       selectedFlag[index] = !isSelected;
       isSelectionMode = selectedFlag.containsValue(true);
-      _draggingMode = DraggingMode.iOS;
+
+      int selectedItemLen = selectedItemLength();
+      _draggingMode = getDraggingMode(selectedItemLen);
+      selectedTitle = "$selectedItemLen selected";
     });
   }
 
@@ -67,20 +69,95 @@ class _LocationsScreenState extends State<LocationsScreen> {
       setState(() {
         selectedFlag[index] = !isSelected;
         isSelectionMode = selectedFlag.containsValue(true);
+
+        int selectedItemLen = selectedItemLength();
+        _draggingMode = getDraggingMode(selectedItemLen);
+        selectedTitle = "$selectedItemLen selected";
       });
     } else {
-      // Tafsilotlar sahifasini ochish
+      // Open details page
     }
+  }
+
+  final List<Widget> unselectedActions = [
+    const SizedBox(
+      width: 16,
+    ),
+    IconButton(
+      onPressed: () {},
+      padding: const EdgeInsets.all(0),
+      constraints: const BoxConstraints(),
+      icon: const Icon(
+        CupertinoIcons.ellipsis_vertical,
+        color: AppColors.white,
+        size: 20,
+      ),
+      style: const ButtonStyle(
+        padding: WidgetStatePropertyAll<EdgeInsets>(EdgeInsets.all(0)),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    ),
+    const SizedBox(
+      width: 12,
+    ),
+    IconButton(
+      onPressed: () {},
+      padding: const EdgeInsets.all(0),
+      constraints: const BoxConstraints(),
+      icon: const Icon(
+        CupertinoIcons.search,
+        color: AppColors.white,
+        size: 22,
+      ),
+      style: const ButtonStyle(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: WidgetStatePropertyAll<EdgeInsets>(
+            EdgeInsets.all(0)), // Remove default padding
+      ),
+    ),
+  ];
+
+  final List<Widget> selectedActions = [];
+
+  Widget unSelectedLeading() {
+    return IconButton(
+        onPressed: () {},
+        icon: const Icon(CupertinoIcons.chevron_left, color: AppColors.white, size: 24,)
+    );
+  }
+
+  Widget selectedLeading() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(CupertinoIcons.circle, color: Colors.grey,),
+          style: const ButtonStyle(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: WidgetStatePropertyAll<EdgeInsets>(
+                EdgeInsets.all(0)), // Remove default padding
+          ),
+        ),
+
+        Text(
+          "All",
+          style: AppStyles.bodyRegularS.copyWith(
+            color: AppColors.white,
+            fontSize: 12,
+            height: .1
+          ),
+        )
+      ],
+    );
   }
 
 
   DraggingMode _draggingMode = DraggingMode.android;
 
-
   @override
   void initState() {
-
-    for (int i = 0; i < 19; i++) {
+    for (int i = 0; i < 4; i++) {
       _items.add(ItemData("title $i", ValueKey("$i"), i));
     }
 
@@ -99,66 +176,52 @@ class _LocationsScreenState extends State<LocationsScreen> {
         builder: (context, state) {
           return Scaffold(
             backgroundColor: AppColors.black,
-            body: ReorderableList(
+            body: reorderable.ReorderableList(
               onReorder: _reorderCallback,
               onReorderDone: _reorderDone,
-              child: CustomScrollView(
-                // cacheExtent: 3000,
-                slivers: <Widget>[
-                  SliverAppBar(
-                    actions: <Widget>[
-                      PopupMenuButton<DraggingMode>(
-                        initialValue: _draggingMode,
-                        onSelected: (DraggingMode mode) {
-                          setState(() {
-                            _draggingMode = mode;
-                          });
-                        },
-                        itemBuilder: (BuildContext context) =>
-                        <PopupMenuItem<DraggingMode>>[
-                          const PopupMenuItem<DraggingMode>(
-                              value: DraggingMode.iOS,
-                              child: Text('iOS-like dragging')),
-                          const PopupMenuItem<DraggingMode>(
-                              value: DraggingMode.android,
-                              child: Text('Android-like dragging')),
-                        ],
-                        child: Container(
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                          child: const Text("Options"),
-                        ),
-                      ),
-                    ],
-                    pinned: true,
-                    expandedHeight: 150.0,
-                    flexibleSpace: const FlexibleSpaceBar(
-                      title: Text('Demo'),
-                    ),
+              child: OneUiNestedScrollView(
+                  toolbarHeight: 80,
+                  expandedWidget: Text(
+                    _draggingMode == DraggingMode.android ? unSelectedTitle : selectedTitle,
+                    style: AppStyles.bodyRegularXL.copyWith(fontSize: 35, color: AppColors.white),
                   ),
-                  SliverPadding(
-                      padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).padding.bottom),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                              (BuildContext context, int index) {
+                  collapsedWidget: Text(
+                    _draggingMode == DraggingMode.android ? unSelectedTitle : selectedTitle,
+                    style: AppStyles.bodySemiBoldM.copyWith(fontSize: 20, color: AppColors.white),
+                  ),
+                  leadingIcon: _draggingMode == DraggingMode.android ? unSelectedLeading() : selectedLeading(),
+                  boxDecoration: const BoxDecoration(
+                      color: AppColors.black
+                  ),
+                  actions: _draggingMode == DraggingMode.android ? unselectedActions : selectedActions,
+
+                  sliverBackgroundColor: AppColors.black,
+                  body: SliverPadding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).padding.bottom
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        childCount: _items.length,
+                              (context, index) {
                             bool isSelected = selectedFlag[index] ?? false;
 
                             return LocationItem(
+                              i: index,
                               isSelected: isSelected,
                               isCurrent: false,
                               data: _items[index],
+                              isSelectionMode: _draggingMode == DraggingMode.iOS,
                               isFirst: index == 0,
                               isLast: index == _items.length - 1,
                               draggingMode: _draggingMode,
                               onLongPress: () => onLongPress(isSelected, index),
                               onTap: () => onTap(isSelected, index),
                             );
-                          },
-                          childCount: _items.length,
-                        ),
-                      )),
-                ],
+                          }
+                      )
+                    ),
+                  )
               ),
             ),
           );
@@ -167,46 +230,17 @@ class _LocationsScreenState extends State<LocationsScreen> {
     );
   }
 
-  Widget topRightSection() {
-    return Positioned(
-      top: -100,
-      right: -100,
-      child: Stack(
-        children: [
-          Container(
-            width: 250,
-            height: 250,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.topLeft,
-                colors: AppColors.subBackgroundLinear,
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 50.0, sigmaY: 50.0),
-              child: Container(
-                color: Colors.transparent,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  int selectedItemLength() {
+    return selectedFlag.values.where((e) => e == true).length;
   }
+
+  DraggingMode getDraggingMode(int length) => length == 0 ? DraggingMode.android : DraggingMode.iOS;
 }
-
-
 
 class ItemData {
   ItemData(this.title, this.key, this.id);
 
   final String title;
-
-  // Each item in reorderable list needs stable and unique key
   final Key key;
   final int id;
 }

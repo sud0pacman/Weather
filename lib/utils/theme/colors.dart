@@ -46,7 +46,8 @@ class AppColors {
   static const bgImageColor = Color(0xFF121223);
   static const white = Color(0xffFFFFFF);
   static const secondaryTextColor = Color(0xffEBEBF5);
-  static const black = Color(0xff000000);
+  static const black = Color(0xff010101);
+  static const item = Color(0xff171719);
   static const midnightBlue = Color(0xff0A1629);
   static const steelGrey = Color(0xff7D8592);
   static const paleBlue = Color(0xffD8E0F0);

@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       topRightSection(),
 
                       SizedBox(
-                        height: AppHelpers.screenHight(context),
+                        height: AppHelpers.screenHeight(context),
                         width: AppHelpers.screenWidth(context),
                         child: SingleChildScrollView(
                           controller: _hideButtonController,
