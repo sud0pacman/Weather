@@ -9,22 +9,28 @@ import 'package:weather_now/utils/theme/app_styles.dart';
 import '../../../../utils/theme/colors.dart';
 import '../locations_screen.dart';
 
+
 class LocationItem extends StatelessWidget {
   final bool isCurrent;
   final VoidCallback? onLongPress;
+  final VoidCallback? onTap;
   final DraggingMode draggingMode;
   final ItemData data;
   final bool isFirst;
   final bool isLast;
+  final bool isSelected;
+  bool isSelectionMode = false;
 
-  const LocationItem({
+  LocationItem({
     super.key,
     required this.isCurrent,
     this.onLongPress,
+    this.onTap,
     required this.data,
     required this.draggingMode,
     required this.isFirst,
     required this.isLast,
+    required this.isSelected
   });
 
   Widget get dragHandle {
@@ -40,8 +46,10 @@ class LocationItem extends StatelessWidget {
         : Container();
   }
 
-
-  Widget content(BuildContext context, ReorderableItemState state) {
+  Widget content(BuildContext context, ReorderableItemState state,
+      {
+    required bool isSelected,
+  }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Opacity(
@@ -49,113 +57,106 @@ class LocationItem extends StatelessWidget {
         child: IntrinsicHeight(
           child: AppGenericShape(
             cornerRadius: 25,
-            child: InkWell(
-              onTap: () {
-                print("salom object salom");
-              },
-              child: Container(
-                height: 120,
-                width: AppHelpers.screenWidth(context),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: AppColors.bottomBarDark,
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    width: 2,
-                    color: state == ReorderableItemState.dragProxy ? Colors.blueAccent : Colors.transparent
+            child: Container(
+              height: 120,
+              width: AppHelpers.screenWidth(context),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppColors.bottomBarDark,
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(
+                  width: 2,
+                  color: state == ReorderableItemState.dragProxy ? Colors.blueAccent : Colors.transparent,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                ],
+              ),
+              child: Row(
+                children: [
+                  _buildSelectIcon(isSelected, data, context),
+                  Expanded(
+                    child: InkWell(
+                      onLongPress: onLongPress,
+                      onTap: onTap,
+                      child: Row(
                         children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isCurrent) const Icon(
-                                Icons.location_on_rounded,
-                                color: AppColors.white,
-                                size: 18,
-                              ),
-
-                              if (isCurrent) 6.horizontalSpace,
-
-                              Expanded(
-                                child: Text(
-                                  "Moskva",
-                                  style: AppStyles.bodyRegularL.copyWith(height: 1),
-                                  overflow: TextOverflow.ellipsis,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isCurrent)
+                                      const Icon(
+                                        Icons.location_on_rounded,
+                                        color: AppColors.white,
+                                        size: 18,
+                                      ),
+                                    if (isCurrent) 6.horizontalSpace,
+                                    Expanded(
+                                      child: Text(
+                                        "Moskva",
+                                        style: AppStyles.bodyRegularL.copyWith(height: 1),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          Text(
-                            "Rossiya",
-                            style: AppStyles.bodyRegularM.copyWith(
-                                color: AppColors.secondaryText
+                                Text(
+                                  "Rossiya",
+                                  style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
+                                ),
+                                Text(
+                                  "Tue, December 17 5:14 PM",
+                                  maxLines: 1,
+                                  style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
+                                ),
+                              ],
                             ),
                           ),
-
-                          Text(
-                            "Tue, December 17 5:14 PM",
-                            maxLines: 1,
-                            style: AppStyles.bodyRegularM.copyWith(
-                                color: AppColors.secondaryText
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-
-                    if (draggingMode == DraggingMode.android) Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
+                          Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Image.asset(
-                                1103.getCustomIcon(),
-                                width: 32,
-                                height: 32,
-                              ),
-
-                              6.horizontalSpace,
-
-                              Flexible(
-                                child: Text(
-                                  "11°",
-                                  style: AppStyles.bodyRegularXL.copyWith(
-                                      fontSize: 32
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    1103.getCustomIcon(),
+                                    width: 32,
+                                    height: 32,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                  6.horizontalSpace,
+                                  Flexible(
+                                    child: Text(
+                                      "11°",
+                                      style: AppStyles.bodyRegularXL.copyWith(fontSize: 32),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                "11°/6°",
+                                style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
                               ),
                             ],
                           ),
-
-                          Text(
-                            "11°/6°",
-                            style: AppStyles.bodyRegularM.copyWith(
-                                color: AppColors.secondaryText
-                            ),
-                          )
+                        )
                         ],
                       ),
-                    )
-                    else dragHandle,
-                  ],
-                ),
+                    ),
+                  ),
+
+                  if (draggingMode == DraggingMode.iOS)
+                    dragHandle,
+                ],
               ),
             ),
           ),
@@ -168,7 +169,22 @@ class LocationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReorderableItem(
       key: data.key,
-      childBuilder: (BuildContext context, ReorderableItemState state) => content(context, state),
+      childBuilder: (BuildContext context, ReorderableItemState state) => content(context, state, isSelected: isSelected),
     );
   }
+
+
+  Widget _buildSelectIcon(bool isSelected, ItemData data, BuildContext context) {
+    if (isSelected) {
+      return Icon(
+        isSelected ? Icons.check_box : Icons.check_box_outline_blank,
+        color: Theme.of(context).primaryColor,
+      );
+    } else {
+      return CircleAvatar(
+        child: Text('${data.id}'),
+      );
+    }
+  }
 }
+

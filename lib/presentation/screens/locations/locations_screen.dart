@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weather_now/presentation/bloc/locations/locations_bloc.dart';
 import 'package:weather_now/presentation/screens/locations/widget/location_item.dart';
 import 'package:flutter/material.dart' hide ReorderableList;
+import 'package:weather_now/utils/constants.dart';
 import '../../../utils/theme/colors.dart';
 
 class LocationsScreen extends StatefulWidget {
@@ -19,6 +19,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
   final LocationsBloc _bloc = LocationsBloc();
   final List<ItemData> _items = [];
   final isSelectableState = true;
+  Map<int, bool> selectedFlag = {};
+  bool isSelectionMode = false;
 
 
   // Returns index of item with given key
@@ -30,22 +32,45 @@ class _LocationsScreenState extends State<LocationsScreen> {
     int draggingIndex = _indexOfKey(item);
     int newPositionIndex = _indexOfKey(newPosition);
 
-    // Uncomment to allow only even target reorder possition
-    // if (newPositionIndex % 2 == 1)
-    //   return false;
+    if (draggingIndex == newPositionIndex) {
+      return false; // Agar joylashuv o'zgarmasa, hech narsa o'zgartirilmaydi.
+    }
 
-    final draggedItem = _items[draggingIndex];
     setState(() {
-      debugPrint("Reordering $item -> $newPosition");
-      _items.removeAt(draggingIndex);
+      // Elementning o'zini almashtiramiz
+      final draggedItem = _items.removeAt(draggingIndex);
       _items.insert(newPositionIndex, draggedItem);
+
+      // `isSelected` holatini ham almashtiramiz
+      final bool? draggedSelectedState = selectedFlag.remove(draggingIndex);
+      selectedFlag[newPositionIndex] = draggedSelectedState!;
     });
+
     return true;
   }
 
   void _reorderDone(Key item) {
     final draggedItem = _items[_indexOfKey(item)];
     debugPrint("Reordering finished for ${draggedItem.title}}");
+  }
+
+  void onLongPress(bool isSelected, int index) {
+    setState(() {
+      selectedFlag[index] = !isSelected;
+      isSelectionMode = selectedFlag.containsValue(true);
+      _draggingMode = DraggingMode.iOS;
+    });
+  }
+
+  void onTap(bool isSelected, int index) {
+    if (isSelectionMode) {
+      setState(() {
+        selectedFlag[index] = !isSelected;
+        isSelectionMode = selectedFlag.containsValue(true);
+      });
+    } else {
+      // Tafsilotlar sahifasini ochish
+    }
   }
 
 
@@ -56,7 +81,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
   void initState() {
 
     for (int i = 0; i < 19; i++) {
-      _items.add(ItemData("title $i", ValueKey("$i")));
+      _items.add(ItemData("title $i", ValueKey("$i"), i));
     }
 
     _bloc.add(LocationInitialEvent());
@@ -117,13 +142,17 @@ class _LocationsScreenState extends State<LocationsScreen> {
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                               (BuildContext context, int index) {
+                            bool isSelected = selectedFlag[index] ?? false;
+
                             return LocationItem(
+                              isSelected: isSelected,
                               isCurrent: false,
                               data: _items[index],
-                              // first and last attributes affect border drawn during dragging
                               isFirst: index == 0,
                               isLast: index == _items.length - 1,
                               draggingMode: _draggingMode,
+                              onLongPress: () => onLongPress(isSelected, index),
+                              onTap: () => onTap(isSelected, index),
                             );
                           },
                           childCount: _items.length,
@@ -173,12 +202,13 @@ class _LocationsScreenState extends State<LocationsScreen> {
 
 
 class ItemData {
-  ItemData(this.title, this.key);
+  ItemData(this.title, this.key, this.id);
 
   final String title;
 
   // Each item in reorderable list needs stable and unique key
   final Key key;
+  final int id;
 }
 
 enum DraggingMode {

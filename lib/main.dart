@@ -39,7 +39,7 @@ class AppWidget extends StatelessWidget {
                 themeMode: ThemeMode.dark,
                 theme: AppTheme.theme,
                 darkTheme: AppTheme.darkTheme,
-                initialRoute: AppRoutes.home,
+                initialRoute: AppRoutes.locations,
                 // initialBinding: AppBindings(),
                 getPages: AppRoutes.routes,
                 fallbackLocale: const Locale('en', 'EN'),
