@@ -24,13 +24,14 @@ class FavouriteEntityAdapter extends TypeAdapter<FavouriteEntity> {
       iconCode: fields[4] as int?,
       tempC: fields[5] as double?,
       tempF: fields[6] as double?,
+      country: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FavouriteEntity obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class FavouriteEntityAdapter extends TypeAdapter<FavouriteEntity> {
       ..writeByte(5)
       ..write(obj.tempC)
       ..writeByte(6)
-      ..write(obj.tempF);
+      ..write(obj.tempF)
+      ..writeByte(7)
+      ..write(obj.country);
   }
 
   @override

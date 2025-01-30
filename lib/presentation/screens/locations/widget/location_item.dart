@@ -3,22 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:weather_now/components/shape.dart';
+import 'package:weather_now/data/model/weather_model.dart';
 import 'package:weather_now/utils/constants.dart';
 import 'package:weather_now/utils/extensions/extensions.dart';
 import 'package:weather_now/utils/helpers/app_helpers.dart';
 import 'package:weather_now/utils/theme/app_styles.dart';
 
+import '../../../../data/source/local/weather_entity.dart';
 import '../../../../utils/theme/colors.dart';
 import '../locations_screen.dart';
 
 
 class LocationItem extends StatelessWidget {
-  final int i;
   final bool isCurrent;
   final VoidCallback? onLongPress;
   final VoidCallback? onTap;
   final DraggingMode draggingMode;
-  final ItemData data;
+  final WeatherModel data;
   final bool isFirst;
   final bool isLast;
   final bool isSelected;
@@ -34,7 +35,7 @@ class LocationItem extends StatelessWidget {
     required this.draggingMode,
     required this.isFirst,
     required this.isLast,
-    required this.isSelected, required this.i
+    required this.isSelected,
   });
 
   Widget get dragHandle {
@@ -106,7 +107,7 @@ class LocationItem extends StatelessWidget {
                                     if (isCurrent) 6.horizontalSpace,
                                     Expanded(
                                       child: Text(
-                                        "$i",
+                                        "${data.key}",
                                         style: AppStyles.bodyRegularL,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -114,7 +115,7 @@ class LocationItem extends StatelessWidget {
                                   ],
                                 ),
                                 Text(
-                                  "Rossiya",
+                                  data.location.country,
                                   style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
                                 ),
                                 Text(
@@ -141,7 +142,7 @@ class LocationItem extends StatelessWidget {
                                   6.horizontalSpace,
                                   Flexible(
                                     child: Text(
-                                      "11°",
+                                      "${data.current.tempC}°",
                                       style: AppStyles.bodyRegularXL.copyWith(fontSize: 32),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -149,7 +150,7 @@ class LocationItem extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                "11°/6°",
+                                "${data.forecast.forecastday[0].day.maxTempC}°/${data.forecast.forecastday[0].day.minTempC}°",
                                 style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
                               ),
                             ],
@@ -174,13 +175,13 @@ class LocationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReorderableItem(
-      key: data.key,
+      key: key!,
       childBuilder: (BuildContext context, ReorderableItemState state) => content(context, state, isSelected: isSelected),
     );
   }
 
 
-  Widget _buildSelectIcon(bool isSelected, ItemData data, BuildContext context) {
+  Widget _buildSelectIcon(bool isSelected, WeatherModel data, BuildContext context) {
     if (isSelected || isSelectionMode) {
       return Row(
         mainAxisSize: MainAxisSize.min,

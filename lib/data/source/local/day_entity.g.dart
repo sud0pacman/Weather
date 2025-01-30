@@ -19,19 +19,31 @@ class DayEntityAdapter extends TypeAdapter<DayEntity> {
     return DayEntity(
       tempC: fields[0] as double,
       tempF: fields[1] as double,
-      condition: fields[2] as ConditionEntity,
+      maxTempC: fields[2] as double,
+      maxTempF: fields[3] as double,
+      minTempC: fields[4] as double,
+      minTempF: fields[5] as double,
+      condition: fields[6] as ConditionEntity,
     );
   }
 
   @override
   void write(BinaryWriter writer, DayEntity obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.tempC)
       ..writeByte(1)
       ..write(obj.tempF)
       ..writeByte(2)
+      ..write(obj.maxTempC)
+      ..writeByte(3)
+      ..write(obj.maxTempF)
+      ..writeByte(4)
+      ..write(obj.minTempC)
+      ..writeByte(5)
+      ..write(obj.minTempF)
+      ..writeByte(6)
       ..write(obj.condition);
   }
 

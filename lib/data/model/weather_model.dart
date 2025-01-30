@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'condition_model.dart';
 import 'current_model.dart';
 import 'location_model.dart';
@@ -5,12 +7,14 @@ import 'location_model.dart';
 class WeatherModel {
   Location location;
   Current current;
+  Key? key;
   final Forecast forecast;
 
   WeatherModel({
     required this.location,
     required this.current,
-    required this.forecast
+    required this.forecast,
+    this.key,
   });
 
   factory WeatherModel.fromJson(Map<String, dynamic> json) => WeatherModel(
@@ -85,14 +89,22 @@ class ForecastDay {
 class Day {
   final double tempC;
   final double tempF;
+  final double maxTempC;
+  final double maxTempF;
+  final double minTempC;
+  final double minTempF;
   final Condition condition;
 
-  Day({required this.tempC, required this.tempF, required this.condition});
+  Day({required this.tempC, required this.tempF, required this.condition, required this.maxTempC, required this.maxTempF, required this.minTempC, required this.minTempF});
 
   factory Day.fromJson(Map<String, dynamic> json) {
     return Day(
       tempC: json['avgtemp_c'],
       tempF: json['avgtemp_f'],
+      maxTempC: json["maxtemp_c"],
+      maxTempF: json["maxtemp_f"],
+      minTempC: json["mintemp_c"],
+      minTempF: json["mintemp_f"],
       condition: Condition.fromJson(json['condition'])
     );
   }

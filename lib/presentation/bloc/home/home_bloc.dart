@@ -193,8 +193,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     Map<int, WeatherModel> weatherMap = {};
 
-    for (int i = 0; i < favouriteEntityList.length; ++i) {
-      weatherMap[i] = AppHelpers.getWeatherModelByEntity(favouriteEntityList[i]);
+    for (int i = 0; i < favouriteEntityList.length; i++) {
+      weatherMap[i] = AppHelpers.getWeatherModelByEntity(favouriteEntityList[i], keyValue: "$i");
     }
 
     return weatherMap;

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:weather_now/data/model/weather_model.dart';
 import 'package:weather_now/data/source/local/weather_entity.dart';
 
 import '../../../utils/isar_helper/weather_hive_helper.dart';
@@ -7,20 +8,20 @@ part 'locations_event.dart';
 part 'locations_state.dart';
 
 class LocationsBloc extends Bloc<LocationsEvent, LocationsState> {
-  LocationsBloc() : super(LocationsState(savedLocation: [])) {
+  LocationsBloc() : super(LocationsState(savedLocations: [])) {
     on<LocationInitialEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
 
       var savedLocation = await _getSavedLocationWithCurrentLocationIndex();
 
-      emit(state.copyWith(savedLocation: savedLocation[0], currentLocationId: savedLocation[1]));
+      emit(state.copyWith(savedLocations: savedLocation[0], currentLocationId: savedLocation[1]));
     });
 
     on<DeleteLocationEvent>((event, emit) async {
       emit(state.copyWith(isLoading: true));
       await WeatherHiveHelper.deleteWeatherEntity(event.weatherModelIndex);
       var savedLocation = await _getSavedLocationWithCurrentLocationIndex();
-      emit(state.copyWith(savedLocation: savedLocation[0], currentLocationId: savedLocation[1]));
+      emit(state.copyWith(savedLocations: savedLocation[0], currentLocationId: savedLocation[1]));
     });
   }
 

@@ -170,7 +170,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
           ),
         ),
         Text(
-          allSelected ? "Unselect All" : "All",
+          "All",
           style: AppStyles.bodyRegularS.copyWith(
             color: AppColors.white,
             fontSize: 12,
@@ -230,15 +230,14 @@ class _LocationsScreenState extends State<LocationsScreen> {
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        childCount: _items.length,
+                        childCount: state.savedLocations.isEmpty ? 1 : state.savedLocations.length,
                               (context, index) {
                             bool isSelected = selectedFlag[index] ?? false;
 
                             return LocationItem(
-                              i: _items[index].id,
                               isSelected: isSelected,
                               isCurrent: false,
-                              data: _items[index],
+                              data: state.savedLocations[index],
                               isSelectionMode: _draggingMode == DraggingMode.iOS,
                               isFirst: index == 0,
                               isLast: index == _items.length - 1,

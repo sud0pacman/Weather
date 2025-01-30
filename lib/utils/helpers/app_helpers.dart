@@ -267,6 +267,10 @@ class AppHelpers {
     return DayEntity(
       tempC: day.tempC,
       tempF: day.tempF,
+      maxTempC: day.maxTempC,
+      maxTempF: day.maxTempF,
+      minTempC: day.minTempC,
+      minTempF: day.minTempF,
       condition: _getConditionEntityByModel(day.condition),
     );
   }
@@ -284,11 +288,12 @@ class AppHelpers {
     );
   }
 
-  static WeatherModel getWeatherModelByEntity(WeatherEntity entity) {
+  static WeatherModel getWeatherModelByEntity(WeatherEntity entity, {String? keyValue}) {
     return WeatherModel(
       location: _getLocationByEntity(entity.location),
       current: getCurrentByEntity(entity.current),
       forecast: _getForecastByEntity(entity.forecast),
+      key: keyValue != null ? Key(keyValue) : null,
     );
   }
 
@@ -310,6 +315,10 @@ class AppHelpers {
     return Day(
       tempC: entity.tempC,
       tempF: entity.tempF,
+      maxTempC: entity.maxTempC,
+      maxTempF: entity.maxTempF,
+      minTempC: entity.minTempC,
+      minTempF: entity.minTempF,
       condition: _getConditionByEntity(entity.condition),
     );
   }
