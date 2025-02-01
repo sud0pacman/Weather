@@ -191,6 +191,16 @@ class AppHelpers {
     return dateTime.hour == now.hour;
   }
 
+
+  static String formatDate(String date) {
+    final inputFormat = DateFormat("yyyy-MM-dd HH:mm");
+    final outputFormat = DateFormat("EEE, MMMM d hh:mm a", "en_US");
+    DateTime dateTime = inputFormat.parse(date);
+
+    return outputFormat.format(dateTime);
+  }
+
+
   static WeatherEntity getWeatherEntityByModel(WeatherModel weatherModel) {
     return WeatherEntity(
       location: _getLocationEntityByModel(weatherModel.location),

@@ -76,7 +76,7 @@ class LocationItem extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -107,7 +107,7 @@ class LocationItem extends StatelessWidget {
                                     if (isCurrent) 6.horizontalSpace,
                                     Expanded(
                                       child: Text(
-                                        "${data.key}",
+                                        data.location.name,
                                         style: AppStyles.bodyRegularL,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -119,9 +119,10 @@ class LocationItem extends StatelessWidget {
                                   style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
                                 ),
                                 Text(
-                                  "Tue, December 17 5:14 PM",
+                                  AppHelpers.formatDate(data.location.localtime),
                                   maxLines: 1,
                                   style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -142,7 +143,7 @@ class LocationItem extends StatelessWidget {
                                   6.horizontalSpace,
                                   Flexible(
                                     child: Text(
-                                      "${data.current.tempC}°",
+                                      "${data.current.tempC.toInt()}°",
                                       style: AppStyles.bodyRegularXL.copyWith(fontSize: 32),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -150,7 +151,7 @@ class LocationItem extends StatelessWidget {
                                 ],
                               ),
                               Text(
-                                "${data.forecast.forecastday[0].day.maxTempC}°/${data.forecast.forecastday[0].day.minTempC}°",
+                                "${data.forecast.forecastday[0].day.maxTempC.toInt()}°/${data.forecast.forecastday[0].day.minTempC.toInt()}°",
                                 style: AppStyles.bodyRegularM.copyWith(color: AppColors.secondaryText),
                               ),
                             ],
