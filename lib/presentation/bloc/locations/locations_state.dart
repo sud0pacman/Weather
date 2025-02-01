@@ -1,21 +1,21 @@
 part of 'locations_bloc.dart';
 
 class LocationsState {
-  List<WeatherModel> savedLocations;
+  Map<int, WeatherModel> savedLocations;
   bool isLoading;
-  String? errorToastMessage;
+  String errorToastMessage;
   int currentLocationId;
   bool isSelectable;
 
   LocationsState(
-      {required this.savedLocations,
+      {this.savedLocations = const {},
       this.isLoading = false,
-      this.errorToastMessage,
+      this.errorToastMessage = "",
       this.currentLocationId = -1,
       this.isSelectable = false});
 
   LocationsState copyWith(
-      {List<WeatherModel>? savedLocations,
+      {Map<int, WeatherModel>? savedLocations,
       bool? isLoading,
       String? errorToastMessage,
       int? currentLocationId,
@@ -23,7 +23,7 @@ class LocationsState {
     return LocationsState(
       savedLocations: savedLocations ?? this.savedLocations,
       isLoading: isLoading ?? false,
-      errorToastMessage: errorToastMessage,
+      errorToastMessage: errorToastMessage ?? "",
       currentLocationId: currentLocationId ?? this.currentLocationId,
       isSelectable: isSelectable ?? false,
     );

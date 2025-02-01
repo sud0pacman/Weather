@@ -175,7 +175,7 @@ class LocationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReorderableItem(
-      key: key!,
+      key: data.key!,
       childBuilder: (BuildContext context, ReorderableItemState state) => content(context, state, isSelected: isSelected),
     );
   }

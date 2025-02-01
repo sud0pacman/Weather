@@ -5,6 +5,7 @@ import 'package:weather_now/presentation/bloc/locations/locations_bloc.dart';
 import 'package:weather_now/presentation/screens/locations/widget/location_item.dart';
 import 'package:flutter/material.dart' hide ReorderableList;
 import 'package:weather_now/presentation/screens/locations/widget/one_ui_nested_scroll_view.dart';
+import 'package:weather_now/utils/constants.dart';
 import '../../../utils/theme/app_styles.dart';
 import '../../../utils/theme/colors.dart';
 
@@ -17,7 +18,6 @@ class LocationsScreen extends StatefulWidget {
 
 class _LocationsScreenState extends State<LocationsScreen> {
   final LocationsBloc _bloc = LocationsBloc();
-  final List<ItemData> _items = [];
   final isSelectableState = true;
   String unSelectedTitle = "Manage locations";
   String selectedTitle = "";
@@ -26,7 +26,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
   bool isSelectionMode = false;
 
   int _indexOfKey(Key key) {
-    return _items.indexWhere((ItemData d) => d.key == key);
+    // return _items.indexWhere((ItemData d) => d.key == key);
+    return 0;
   }
 
   bool _reorderCallback(Key item, Key newPosition) {
@@ -37,35 +38,35 @@ class _LocationsScreenState extends State<LocationsScreen> {
       return false; // No change in position
     }
 
-    setState(() {
-      // Swap the items in the list
-      final draggedItem = _items.removeAt(draggingIndex);
-      _items.insert(newPositionIndex, draggedItem);
-
-      // Swap the selected states
-      bool draggedSelectedState = selectedFlag[draggingIndex] ?? false;
-      bool newPositionSelectedState = selectedFlag[newPositionIndex] ?? false;
-
-      // Swap the selection state
-      selectedFlag[draggingIndex] = newPositionSelectedState;
-      selectedFlag[newPositionIndex] = draggedSelectedState;
-
-      // Cleanup false selections
-      if (!selectedFlag[draggingIndex]!) {
-        selectedFlag.remove(draggingIndex);
-      }
-      if (!selectedFlag[newPositionIndex]!) {
-        selectedFlag.remove(newPositionIndex);
-      }
-    });
+    // setState(() {
+    //   // Swap the items in the list
+    //   final draggedItem = _items.removeAt(draggingIndex);
+    //   _items.insert(newPositionIndex, draggedItem);
+    //
+    //   // Swap the selected states
+    //   bool draggedSelectedState = selectedFlag[draggingIndex] ?? false;
+    //   bool newPositionSelectedState = selectedFlag[newPositionIndex] ?? false;
+    //
+    //   // Swap the selection state
+    //   selectedFlag[draggingIndex] = newPositionSelectedState;
+    //   selectedFlag[newPositionIndex] = draggedSelectedState;
+    //
+    //   // Cleanup false selections
+    //   if (!selectedFlag[draggingIndex]!) {
+    //     selectedFlag.remove(draggingIndex);
+    //   }
+    //   if (!selectedFlag[newPositionIndex]!) {
+    //     selectedFlag.remove(newPositionIndex);
+    //   }
+    // });
 
     return true;
   }
 
 
   void _reorderDone(Key item) {
-    final draggedItem = _items[_indexOfKey(item)];
-    debugPrint("Reordering finished for ${draggedItem.title}}");
+    // final draggedItem = _items[_indexOfKey(item)];
+    // debugPrint("Reordering finished for ${draggedItem.title}}");
   }
 
   void onLongPress(bool isSelected, int index) {
@@ -96,13 +97,13 @@ class _LocationsScreenState extends State<LocationsScreen> {
 
   void selectAll(bool isSelected) {
     setState(() {
-      for (int i = 0; i < _items.length; i++) {
-        selectedFlag[i] = isSelected;
-      }
-      isSelectionMode = isSelected;
-      int selectedItemLen = selectedItemLength();
-      _draggingMode = getDraggingMode(selectedItemLen);
-      selectedTitle = "$selectedItemLen selected";
+      // for (int i = 0; i < _items.length; i++) {
+      //   selectedFlag[i] = isSelected;
+      // }
+      // isSelectionMode = isSelected;
+      // int selectedItemLen = selectedItemLength();
+      // _draggingMode = getDraggingMode(selectedItemLen);
+      // selectedTitle = "$selectedItemLen selected";
     });
   }
 
@@ -154,7 +155,8 @@ class _LocationsScreenState extends State<LocationsScreen> {
   }
 
   Widget selectedLeading() {
-    bool allSelected = selectedItemLength() == _items.length;
+    // bool allSelected = selectedItemLength() == _items.length;
+    bool allSelected = false;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -186,7 +188,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
   @override
   void initState() {
     for (int i = 0; i < 4; i++) {
-      _items.add(ItemData("title $i", ValueKey("$i"), i));
+      // _items.add(ItemData("title $i", ValueKey("$i"), i));
     }
 
     _bloc.add(LocationInitialEvent());
@@ -199,7 +201,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
       value: _bloc,
       child: BlocConsumer<LocationsBloc, LocationsState>(
         listener: (context, state) {
-          // TODO: implement listener
+          Constants.logger.i(state);
         },
         builder: (context, state) {
           return Scaffold(
@@ -230,20 +232,25 @@ class _LocationsScreenState extends State<LocationsScreen> {
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        childCount: state.savedLocations.isEmpty ? 1 : state.savedLocations.length,
+                          childCount: state.savedLocations.length,
                               (context, index) {
-                            bool isSelected = selectedFlag[index] ?? false;
+                            var entry = state.savedLocations.entries.toList()[index];
+                            Constants.logger.i("${entry.key} => ${entry.value.location.name}");
+                            bool isSelected = selectedFlag[entry.key] ?? false;
 
+                            var data = entry.value;
+
+                            // return Text("${data.key}, ${data.location.country}, ${data.current.tempC}, ${data.forecast.forecastday[0].day.maxTempC}, ${data.forecast.forecastday[0].day.minTempC}");
                             return LocationItem(
                               isSelected: isSelected,
                               isCurrent: false,
-                              data: state.savedLocations[index],
+                              data: data,
                               isSelectionMode: _draggingMode == DraggingMode.iOS,
                               isFirst: index == 0,
-                              isLast: index == _items.length - 1,
+                              isLast: index == state.savedLocations.length - 1,
                               draggingMode: _draggingMode,
-                              onLongPress: () => onLongPress(isSelected, index),
-                              onTap: () => onTap(isSelected, index),
+                              onLongPress: () => onLongPress(isSelected, entry.key),
+                              onTap: () => onTap(isSelected, entry.key),
                             );
                           }
                       )

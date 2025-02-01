@@ -96,8 +96,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 await WeatherHiveHelper.updateWeatherEntity(AppHelpers.getWeatherEntityByModel(weatherModel), savedCurrentWeatherIndex);
               }
               else {
-                int currentWeatherIndex = await WeatherHiveHelper
-                    .addWeatherEntity(
+                int currentWeatherIndex = await WeatherHiveHelper.addWeatherEntity(
                     AppHelpers.getWeatherEntityByModel(weatherModel)
                 );
 
